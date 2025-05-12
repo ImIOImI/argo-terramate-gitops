@@ -1,0 +1,53 @@
+generate_file "_tmgen-base.yaml" {
+  condition = tm_contains(terramate.stack.tags, "istio")
+
+  content = tm_yamlencode(let.manifest)
+
+  lets {
+    manifest = {
+      apiVersion = "argoproj.io/v1alpha1"
+      kind       = "Application"
+      metadata = {
+        name = "istio-base"
+        annotations = {
+          argocd.argoproj.io / sync-wave = "-20"
+        }
+        finalizers = [
+          "resources-finalizer.argocd.argoproj.io"
+        ]
+      }
+      spec = {
+        project = global.project
+        source = {
+          repoURL        = "https://istio-release.storage.googleapis.com/charts"
+          chart          = "base"
+          targetRevision = "'*'"
+        }
+        destination = {
+          server    = global.destination.server
+          namespace = "istio-system"
+        }
+        revisionHistoryLimit = 3
+        syncPolicy = {
+          automated = {}
+          syncOptions = [
+            "ApplyOutOfSyncOnly=true",
+            "CreateNamespace=true",
+            "FailOnSharedResource=true",
+            "PruneLast=true",
+          ]
+        }
+        ignoreDifferences = [
+          {
+            group = "admissionregistration.k8s.io"
+            kind  = "ValidatingWebhookConfiguration"
+            name  = "istiod-default-validator"
+            jqPathExpressions = [
+              ".webhooks[] ?.failurePolicy"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
