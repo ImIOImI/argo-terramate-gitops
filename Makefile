@@ -9,6 +9,7 @@ KNOWN_TARGETS := init \
 	pre-commit-setup \
 	pre-commit-test \
 	gen-lock \
+	compat \
 
 .PHONY: $(KNOWN_TARGETS)
 
@@ -66,6 +67,9 @@ pre-commit-setup:
 
 pre-commit-test:
 	pre-commit run -a
+
+compat:
+	./tests/compat/run.sh ${ARGS}
 
 # Catch-all target to prevent errors when extra words are passed.
 %:

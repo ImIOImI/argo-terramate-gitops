@@ -1,0 +1,23 @@
+"apiVersion": "argoproj.io/v1alpha1"
+"kind": "Application"
+"metadata":
+  "annotations":
+    "argocd.argoproj.io/sync-wave": "-20"
+  "name": "compat-compat"
+"spec":
+  "destination":
+    "namespace": "compat"
+    "server": "https://kubernetes.default.svc"
+  "project": "system"
+  "source":
+    "chart": "external-dns"
+    "helm":
+      "values": |
+        serviceAccount:
+          name: external-dns-sa
+    "repoURL": "https://kubernetes-sigs.github.io/external-dns"
+    "targetRevision": "1.14.5"
+  "syncPolicy":
+    "automated": {}
+    "syncOptions":
+    - "CreateNamespace=true"
